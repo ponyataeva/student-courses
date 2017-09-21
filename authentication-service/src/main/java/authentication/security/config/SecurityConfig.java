@@ -1,5 +1,6 @@
 package authentication.security.config;
 
+import authentication.AuthenticationController;
 import authentication.security.config.entry.point.AuthServiceAuthenticationEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable();
-        http.antMatcher("/auth").httpBasic().authenticationEntryPoint(authEntryPoint);
+        http.antMatcher(AuthenticationController.AUTH).httpBasic().authenticationEntryPoint(authEntryPoint);
     }
 
     @Override

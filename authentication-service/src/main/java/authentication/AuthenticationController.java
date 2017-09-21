@@ -1,6 +1,5 @@
 package authentication;
 
-import authentication.dto.ErrorEntityType;
 import authentication.dto.SimpleUser;
 import authentication.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,19 +11,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import static authentication.Constants.ErrorMessage.INCORRECT_CREDENTIAL;
-import static authentication.Constants.OperationsPath.AUTH_PATH;
-
 /**
- * Add class description
+ * Controller for Authentication Service
  */
 @RestController
 public class AuthenticationController {
 
+    public static final String AUTH = "/auth";
+
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = AUTH_PATH
+    /**
+     * Find provided user credential in file.
+     *
+     * @param user which should be authenticated.
+     * @return ResponseEntity :
+     * with 401 in case if there is no match in users.properties file or password is wrong.
+     * with 403 in case if basic authentication was not passed.
+     */
+    @RequestMapping(value = AUTH
             , method = RequestMethod.POST
             , produces = MediaType.APPLICATION_JSON_VALUE
             , consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -32,9 +38,6 @@ public class AuthenticationController {
         if (userService.userExists(user.getUser(), user.getPassword())) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        ErrorEntityType error = new ErrorEntityType();
-        error.setStatus(HttpStatus.UNAUTHORIZED.value());
-        error.setMessage(INCORRECT_CREDENTIAL);
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 }

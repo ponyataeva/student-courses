@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * There is provided error in case if basic authentication has been failed.
+ */
 @Component
 public class AuthServiceAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 

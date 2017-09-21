@@ -1,5 +1,8 @@
 package authentication.dto;
 
+/**
+ * Data object used for request body.
+ */
 public class SimpleUser {
 
     private String user;
