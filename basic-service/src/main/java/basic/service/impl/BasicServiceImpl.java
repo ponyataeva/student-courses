@@ -25,8 +25,8 @@ import java.util.Base64;
 @Service
 public class BasicServiceImpl implements BasicService {
 
-    private static final String USER_DATA_PATH = "/data/{user_id}";
-    private static final String AUTH_PATH = "/auth";
+    private static final String USER_INFO = "/data/{user_id}";
+    private static final String AUTH = "/auth";
 
     @Value("${auth.login}")
     private String authLogin;
@@ -65,12 +65,12 @@ public class BasicServiceImpl implements BasicService {
 
     @Value("${data.host}")
     public void setUserDataUrl(String hostAddress) {
-        userDataUrl = "http://" + hostAddress + USER_DATA_PATH;
+        userDataUrl = "http://" + hostAddress + USER_INFO;
     }
 
     @Value("${auth.host}")
     public void setAuthUrl(String hostAddress) {
-        authUrl = "http://" + hostAddress + AUTH_PATH;
+        authUrl = "http://" + hostAddress + AUTH;
     }
 
     private RestTemplate getRestTemplate() {
