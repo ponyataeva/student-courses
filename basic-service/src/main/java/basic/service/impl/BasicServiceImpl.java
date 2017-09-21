@@ -53,16 +53,14 @@ public class BasicServiceImpl implements BasicService {
 
     @PostConstruct
     public void setEncodedAuthCredential() {
-        String credential = authLogin + ":" + authPassword;
-        String encodedCredential = new String(Base64.getEncoder().encode(credential.getBytes()), Charset.forName("UTF-8"));
-        authCredential = "Basic " + encodedCredential;
+        authCredential = encodeCredential(authLogin, authPassword);
+        dataCredential = encodeCredential(dataLogin, dataPassword);
     }
 
-    @PostConstruct
-    public void setEncodedDataCredential() {
-        String credential = dataLogin + ":" + dataPassword;
+    private String encodeCredential(String login, String password) {
+        String credential = login + ":" + password;
         String encodedCredential = new String(Base64.getEncoder().encode(credential.getBytes()), Charset.forName("UTF-8"));
-        dataCredential = "Basic " + encodedCredential;
+        return  "Basic " + encodedCredential;
     }
 
     @Value("${data.host}")
@@ -75,7 +73,7 @@ public class BasicServiceImpl implements BasicService {
         authUrl = "http://" + hostAddress + AUTH_PATH;
     }
 
-    public RestTemplate getRestTemplate() {
+    private RestTemplate getRestTemplate() {
         return restTemplateFactory.getObject();
     }
 
