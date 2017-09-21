@@ -1,4 +1,4 @@
-package data.entry.point;
+package data.config.entry.point;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
@@ -10,6 +10,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * There is provided error in case if basic authentication has been failed.
+ */
 @Component
 public class DataServiceAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 

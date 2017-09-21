@@ -1,6 +1,5 @@
 package data;
 
-import data.dto.ErrorEntityType;
 import data.dto.UserInfo;
 import data.repositories.UserInfoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.math.BigInteger;
 
-import static data.Constants.USER_DATA_PATH;
-import static data.Constants.USER_NOT_FOUND_MSG;
-
 
 /**
- * Add class description
+ * Controller for Data Service
  */
 @RestController
 public class DataController {
+
+    private static final String USER_INFO = "/data/{user-id}";
 
     private final UserInfoRepository userInfoRepository;
 
@@ -32,7 +30,15 @@ public class DataController {
         this.userInfoRepository = userInfoRepository;
     }
 
-    @RequestMapping(value = USER_DATA_PATH
+    /**
+     * Get user data by given id.
+     *
+     * @param userId user
+     * @return ResponseEntity :
+     * with 403 code in case if basic authentication was not passed.
+     * with 404 code in case if there is no data with given user-id.
+     */
+    @RequestMapping(value = USER_INFO
             , method = RequestMethod.GET
             , produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity getData(@PathVariable("user-id") String userId) throws IOException {
@@ -40,9 +46,7 @@ public class DataController {
         if (userInfo != null) {
             return new ResponseEntity(userInfo, HttpStatus.OK);
         } else {
-            ErrorEntityType error = new ErrorEntityType();
-            error.setMessage(USER_NOT_FOUND_MSG);
-            return new ResponseEntity(error, HttpStatus.NOT_FOUND);
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
     }
 }

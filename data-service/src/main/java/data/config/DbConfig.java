@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * Add class description
+ * Data source configuration.
  */
 @EnableJpaRepositories(basePackages = "data.repositories")
 @Configuration
