@@ -8,12 +8,19 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-import static basic.Constants.LOGIN_PATH;
-import static basic.Constants.USER_PATTERN;
+import javax.annotation.Resource;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Bean(name = "tokenFilter")
+    public TokenFilter tokenFilterBean() {
+        return new TokenFilter();
+    }
+
+    @Resource
+    private TokenFilter tokenFilter;
 
     /**
      * Add token filter to some path.
@@ -21,15 +28,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     public FilterRegistrationBean tokenFilterRegistrationBean() throws Exception {
         FilterRegistrationBean registrationBean = new FilterRegistrationBean();
-        TokenFilter securityFilter = new TokenFilter();
-        registrationBean.setFilter(securityFilter);
-        registrationBean.addUrlPatterns(USER_PATTERN, LOGIN_PATH);
-
+        registrationBean.setFilter(tokenFilter);
+        registrationBean.addUrlPatterns("/*");
         return registrationBean;
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
+        http.csrf().disable().logout().disable();
     }
 }

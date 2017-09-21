@@ -22,11 +22,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.Charset;
 import java.util.Base64;
 
-import static basic.Constants.AUTH_PATH;
-import static basic.Constants.USER_DATA_PATH;
-
 @Service
 public class BasicServiceImpl implements BasicService {
+
+    private static final String USER_DATA_PATH = "/data/{user_id}";
+    private static final String AUTH_PATH = "/auth";
 
     @Value("${auth.login}")
     private String authLogin;
@@ -40,8 +40,8 @@ public class BasicServiceImpl implements BasicService {
     @Value("${data.password}")
     private String dataPassword;
 
-    private String encodedAuthCredential;
-    private String encodedDataCredential;
+    private String authCredential;
+    private String dataCredential;
 
     private String userDataUrl;
     private String authUrl;
@@ -55,14 +55,14 @@ public class BasicServiceImpl implements BasicService {
     public void setEncodedAuthCredential() {
         String credential = authLogin + ":" + authPassword;
         String encodedCredential = new String(Base64.getEncoder().encode(credential.getBytes()), Charset.forName("UTF-8"));
-        encodedAuthCredential = "Basic " + encodedCredential;
+        authCredential = "Basic " + encodedCredential;
     }
 
     @PostConstruct
     public void setEncodedDataCredential() {
         String credential = dataLogin + ":" + dataPassword;
         String encodedCredential = new String(Base64.getEncoder().encode(credential.getBytes()), Charset.forName("UTF-8"));
-        encodedDataCredential = "Basic " + encodedCredential;
+        dataCredential = "Basic " + encodedCredential;
     }
 
     @Value("${data.host}")
@@ -80,27 +80,33 @@ public class BasicServiceImpl implements BasicService {
     }
 
     public ResponseEntity<String> getUserById(String userId) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, encodedDataCredential);
-        HttpEntity entity = new HttpEntity(headers);
-        return getRestTemplate().exchange(userDataUrl, HttpMethod.GET, entity, String.class, userId);
+        HttpEntity entity = new HttpEntity(addAuthInfo(dataCredential));
+        ResponseEntity result;
+        try {
+            result = getRestTemplate().exchange(userDataUrl, HttpMethod.GET, entity, String.class, userId);
+        } catch (ResourceAccessException e) {
+            return new ResponseEntity<>(HttpStatus.SERVICE_UNAVAILABLE);
+        }
+        HttpStatus status = result.getStatusCode();
+        if (HttpStatus.FORBIDDEN.equals(status)) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        } else {
+            return result;
+        }
     }
 
     public ResponseEntity doAuth(SimpleUser user, HttpServletRequest request) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.AUTHORIZATION, encodedAuthCredential);
-        HttpEntity entity = new HttpEntity<>(user, headers);
+        HttpEntity entity = new HttpEntity<>(user, addAuthInfo(authCredential));
         ResponseEntity result = doAuth(entity);
         if (HttpStatus.OK.equals(result.getStatusCode())) {
             CsrfToken token = csrfTokenRepository.generateToken(request);
             csrfTokenRepository.saveToken(token, request, null);
-            headers = new HttpHeaders();
+            HttpHeaders headers = new HttpHeaders();
             headers.add(token.getHeaderName(), token.getToken());
             return new ResponseEntity(headers, HttpStatus.OK);
         } else {
             return result;
         }
-
     }
 
     private ResponseEntity doAuth(HttpEntity entity) {
@@ -118,5 +124,11 @@ public class BasicServiceImpl implements BasicService {
         } catch (ResourceAccessException e) {
             return new ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE);
         }
+    }
+
+    private HttpHeaders addAuthInfo(String credentials) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.AUTHORIZATION, credentials);
+        return headers;
     }
 }

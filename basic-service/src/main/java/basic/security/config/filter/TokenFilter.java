@@ -1,7 +1,7 @@
 package basic.security.config.filter;
 
+import basic.BasicController;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static basic.Constants.CSRF_TOKEN_ERROR;
+import static basic.Messages.CSRF_TOKEN_ERROR;
 
 /**
  * Filter for check CSRF token before execution operation.
@@ -27,7 +27,7 @@ public class TokenFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        if (!HttpMethod.GET.name().equals(((HttpServletRequest) request).getMethod())) {
+        if (BasicController.LOGIN.equals(((HttpServletRequest) request).getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
