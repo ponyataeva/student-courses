@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 public class BasicController {
 
     public static final String LOGIN = "/login";
-    private static final String LOGOUT = "/logout";
+    public static final String LOGOUT = "/logout";
     private static final String USER_INFO = "/user/{user_id}";
 
     @Autowired
