@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * Add class description
+ * Data application for run.
  */
 @ComponentScan("data")
 @SpringBootApplication
