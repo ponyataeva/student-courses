@@ -3,14 +3,17 @@ package basic;
 import basic.dto.SimpleUser;
 import basic.service.BasicService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.ResourceAccessException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,7 +30,8 @@ public class BasicController {
     @Autowired
     protected BasicService basicService;
 
-    private HttpSessionCsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
+    @Autowired
+    private HttpSessionCsrfTokenRepository csrfTokenRepository;
 
     /**
      * Adds X-CSRF-TOKEN header to response with generated CSRF token in case of successful
@@ -52,7 +56,12 @@ public class BasicController {
     @RequestMapping(value = USER_INFO
             , method = RequestMethod.GET
             , produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getUser(@PathVariable("user_id") String userId) {
+    public ResponseEntity getUser(@PathVariable("user_id") String userId) {
         return basicService.getUserById(userId);
+    }
+
+    @ExceptionHandler(ResourceAccessException.class)
+    private ResponseEntity handleServerUnavailable() {
+        return new ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE);
     }
 }

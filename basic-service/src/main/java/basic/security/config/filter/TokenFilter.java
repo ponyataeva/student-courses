@@ -2,6 +2,7 @@ package basic.security.config.filter;
 
 import basic.BasicController;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
@@ -19,11 +20,13 @@ import static basic.Messages.CSRF_TOKEN_ERROR;
 
 /**
  * Filter for check CSRF token before execution operation.
- * If token doesn't match, break operation and send error.
+ * If token doesn't match, break operation and send error
+ * else continue flow.
  */
 public class TokenFilter extends GenericFilterBean {
 
-    private HttpSessionCsrfTokenRepository tokenRepository = new HttpSessionCsrfTokenRepository();
+    @Autowired
+    private HttpSessionCsrfTokenRepository csrfTokenRepository;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
@@ -31,14 +34,16 @@ public class TokenFilter extends GenericFilterBean {
             filterChain.doFilter(request, response);
             return;
         }
-        CsrfToken sessionToken = tokenRepository.loadToken((HttpServletRequest) request);
-        if (sessionToken != null) {
-            String headerToken = ((HttpServletRequest) request).getHeader(sessionToken.getHeaderName());
-            if (StringUtils.equals(sessionToken.getToken(), headerToken)) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+
+        CsrfToken sessionToken = csrfTokenRepository.loadToken((HttpServletRequest) request);
+        if (sessionToken == null) {
+            ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value(), CSRF_TOKEN_ERROR);
+            return;
         }
-        ((HttpServletResponse) response).sendError(HttpStatus.UNAUTHORIZED.value(), CSRF_TOKEN_ERROR);
+
+        String headerToken = ((HttpServletRequest) request).getHeader(sessionToken.getHeaderName());
+        if (StringUtils.equals(sessionToken.getToken(), headerToken)) {
+            filterChain.doFilter(request, response);
+        }
     }
 }

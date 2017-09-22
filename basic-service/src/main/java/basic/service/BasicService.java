@@ -20,7 +20,7 @@ public interface BasicService {
      * with 500 code in case if data.login/data.password properties doesn’t match.
      * with 503 code in case if Data service is unavailable.
      */
-    ResponseEntity<String> getUserById(String userId);
+    ResponseEntity getUserById(String userId);
 
     /**
      * Execute call to authentication-service for authenticate given user.

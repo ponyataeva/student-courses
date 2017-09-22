@@ -1,5 +1,6 @@
 package basic.service;
 
+import basic.service.error.BasicResponseErrorHandler;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
@@ -27,5 +28,6 @@ public class RestTemplateFactory implements FactoryBean<RestTemplate>, Initializ
 
     public void afterPropertiesSet() {
         restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new BasicResponseErrorHandler());
     }
 }

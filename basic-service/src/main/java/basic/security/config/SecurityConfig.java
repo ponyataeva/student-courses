@@ -14,11 +14,6 @@ import javax.annotation.Resource;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Bean(name = "tokenFilter")
-    public TokenFilter tokenFilterBean() {
-        return new TokenFilter();
-    }
-
     @Resource
     private TokenFilter tokenFilter;
 
