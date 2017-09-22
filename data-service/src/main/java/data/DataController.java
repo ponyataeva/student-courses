@@ -21,7 +21,7 @@ import java.math.BigInteger;
 @RestController
 public class DataController {
 
-    private static final String USER_INFO = "/data/{user-id}";
+    public static final String USER_INFO = "/data/{user-id}";
 
     private final UserInfoRepository userInfoRepository;
 
